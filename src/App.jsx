@@ -10,12 +10,20 @@ function App() {
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const [chat, setChat] = useState([
-    {
-      sender: "nova",
-      text: "Hello, I am NOVA. How can I assist you today?"
-    }
-  ])
+  const [chat, setChat] = useState(() => {
+
+    const savedChat = localStorage.getItem("nova-chat")
+
+    return savedChat
+      ? JSON.parse(savedChat)
+      : [
+          {
+            sender: "nova",
+            text: "Hello, I am NOVA. How can I assist you today?"
+          }
+        ]
+
+  })
 
   const chatRef = useRef(null)
 
@@ -27,6 +35,15 @@ function App() {
     }
 
   }, [chat, loading])
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "nova-chat",
+      JSON.stringify(chat)
+    )
+
+  }, [chat])
 
   const speakText = (text) => {
 
@@ -85,7 +102,10 @@ function App() {
         "http://localhost:5000/chat",
         {
           message: currentMessage,
-          chatHistory: chat
+          chatHistory: [
+            ...chat,
+            userMessage
+          ]
         }
       )
 
