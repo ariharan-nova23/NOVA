@@ -88,14 +88,41 @@ function App() {
         }
       )
 
+      const fullText = response.data.reply
+
+      let currentText = ""
+
       const novaReply = {
         sender: "nova",
-        text: response.data.reply
+        text: ""
       }
 
       setChat(prev => [...prev, novaReply])
 
-      speakText(response.data.reply)
+      for (let i = 0; i < fullText.length; i++) {
+
+        currentText += fullText[i]
+
+        await new Promise(resolve =>
+          setTimeout(resolve, 20)
+        )
+
+        setChat(prev => {
+
+          const updated = [...prev]
+
+          updated[updated.length - 1] = {
+            sender: "nova",
+            text: currentText
+          }
+
+          return updated
+
+        })
+
+      }
+
+      speakText(fullText)
 
     } catch (error) {
 
