@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import axios from "axios"
 import { FaMicrophone } from "react-icons/fa"
 
@@ -15,9 +15,28 @@ function App() {
     }
   ])
 
+  const chatRef = useRef(null)
+
+  useEffect(() => {
+
+    if (chatRef.current) {
+      chatRef.current.scrollTop =
+        chatRef.current.scrollHeight
+    }
+
+  }, [chat, loading])
+
   const startListening = () => {
 
-    const recognition = new window.webkitSpeechRecognition()
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition
+
+    if (!SpeechRecognition) {
+      alert("Speech Recognition not supported in this browser")
+      return
+    }
+
+    const recognition = new SpeechRecognition()
 
     recognition.lang = "en-US"
 
@@ -144,7 +163,10 @@ function App() {
           </div>
 
           {/* Messages */}
-          <div className="bg-black rounded-xl p-4 h-64 overflow-y-auto text-gray-300 space-y-4">
+          <div
+            ref={chatRef}
+            className="bg-black rounded-xl p-4 h-64 overflow-y-auto text-gray-300 space-y-4"
+          >
 
             {chat.map((msg, index) => (
               <div
