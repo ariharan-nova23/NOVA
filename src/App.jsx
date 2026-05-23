@@ -84,7 +84,8 @@ function App() {
       const response = await axios.post(
         "http://localhost:5000/chat",
         {
-          message: currentMessage
+          message: currentMessage,
+          chatHistory: chat
         }
       )
 
