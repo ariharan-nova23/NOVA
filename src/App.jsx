@@ -11,18 +11,48 @@ function App() {
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const [voiceIndex, setVoiceIndex] = useState(0)
+
+  const [theme, setTheme] = useState("cyan")
+
+  const themes = {
+    cyan: {
+      primary: "text-cyan-400",
+      glow: "drop-shadow-[0_0_25px_#00ffff]"
+    },
+
+    purple: {
+      primary: "text-purple-400",
+      glow: "drop-shadow-[0_0_25px_#a855f7]"
+    },
+
+    red: {
+      primary: "text-red-400",
+      glow: "drop-shadow-[0_0_25px_#ff0000]"
+    },
+
+    green: {
+      primary: "text-green-400",
+      glow: "drop-shadow-[0_0_25px_#00ff00]"
+    }
+  }
+
+  const currentTheme = themes[theme]
+
+  const defaultChat = [
+    {
+      sender: "nova",
+      text: "Hello, I am NOVA. How can I assist you today?"
+    }
+  ]
+
   const [chat, setChat] = useState(() => {
 
     const savedChat = localStorage.getItem("nova-chat")
 
     return savedChat
       ? JSON.parse(savedChat)
-      : [
-          {
-            sender: "nova",
-            text: "Hello, I am NOVA. How can I assist you today?"
-          }
-        ]
+      : defaultChat
 
   })
 
@@ -46,11 +76,21 @@ function App() {
 
   }, [chat])
 
+  const clearChat = () => {
+
+    localStorage.removeItem("nova-chat")
+
+    setChat(defaultChat)
+
+  }
+
   const speakText = (text) => {
 
     const speech = new SpeechSynthesisUtterance(text)
 
-    speech.lang = "en-US"
+    const voices = window.speechSynthesis.getVoices()
+
+    speech.voice = voices[voiceIndex]
 
     speech.rate = 1
     speech.pitch = 1
@@ -164,24 +204,81 @@ function App() {
 
   return (
 
-<div className="bg-black min-h-screen text-white overflow-hidden relative">
+    <div className="bg-black min-h-screen text-white overflow-hidden relative">
 
-  <ParticlesBackground />
+      <ParticlesBackground />
 
-  <Navbar />
-     <div className="flex flex-col items-center justify-center h-[85vh] relative z-10">
+      <Navbar />
+
+      <div className="flex flex-col items-center justify-center h-[85vh] relative z-10">
 
         <Orb />
 
         {/* Main Title */}
-        <h1 className="mt-10 text-8xl tracking-[12px] font-bold text-cyan-400 drop-shadow-[0_0_25px_#00ffff]">
+        <h1 className={`mt-10 text-5xl md:text-8xl tracking-[6px] md:tracking-[12px] font-bold text-center ${currentTheme.primary} ${currentTheme.glow}`}>
           NOVA
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-4 text-gray-400 text-xl tracking-[8px]">
+        <p className="mt-4 text-gray-400 text-sm md:text-xl tracking-[4px] md:tracking-[8px] text-center px-4">
           THE FUTURE OF ASSISTANCE
         </p>
+
+        {/* Controls */}
+        <div className="mb-6 mt-4 z-10">
+
+          <div className="flex flex-wrap items-center justify-center gap-3 bg-[#081018]/70 backdrop-blur-xl border border-cyan-900 rounded-2xl px-4 py-3 shadow-[0_0_25px_#00ffff15]">
+
+            {/* Theme Selector */}
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="bg-black/50 border border-cyan-900 text-cyan-400 px-4 py-2 rounded-xl outline-none"
+            >
+              <option value="cyan">Cyberpunk</option>
+              <option value="purple">Purple Neon</option>
+              <option value="red">Red AI</option>
+              <option value="green">Matrix Green</option>
+            </select>
+
+            {/* Voice Selector */}
+            <select
+              value={voiceIndex}
+              onChange={(e) =>
+                setVoiceIndex(Number(e.target.value))
+              }
+              className="bg-black/50 border border-cyan-900 text-cyan-400 px-4 py-2 rounded-xl outline-none max-w-[180px]"
+            >
+
+              {window.speechSynthesis
+                .getVoices()
+                .map((voice, index) => (
+
+                  <option
+                    key={index}
+                    value={index}
+                  >
+                    {voice.name}
+                  </option>
+
+                ))}
+
+            </select>
+
+            {/* Divider */}
+            <div className="hidden md:block w-px h-8 bg-cyan-900" />
+
+            {/* Clear Chat */}
+            <button
+              onClick={clearChat}
+              className="bg-red-500/90 hover:bg-red-600 transition px-4 py-2 rounded-xl font-semibold"
+            >
+              Clear Chat
+            </button>
+
+          </div>
+
+        </div>
 
         <ChatBox
           chat={chat}

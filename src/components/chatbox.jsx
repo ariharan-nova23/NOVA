@@ -1,7 +1,9 @@
-import { FaMicrophone } from "react-icons/fa"
-import Message from "./Message"
+import {
+  FaMicrophone,
+  FaPaperclip
+} from "react-icons/fa"
 
-import clickSound from "../sounds/click.mp3"
+import Message from "./Message"
 
 function ChatBox({
   chat,
@@ -13,28 +15,19 @@ function ChatBox({
   chatRef
 }) {
 
-  const playClick = () => {
-
-    const audio = new Audio(clickSound)
-
-    audio.volume = 0.5
-
-    audio.play()
-
-  }
-
   return (
 
-    <div className="mt-10 w-[90%] max-w-2xl bg-[#081018]/80 backdrop-blur-xl border border-cyan-900 rounded-2xl p-6 shadow-[0_0_25px_#00ffff20]">
+    <div className="mt-10 w-[95%] max-w-3xl bg-[#081018]/70 backdrop-blur-2xl border border-cyan-900 rounded-3xl p-6 shadow-[0_0_30px_#00ffff20]">
 
-      <div className="text-cyan-400 mb-4 text-lg">
+      {/* Header */}
+      <div className="text-cyan-400 mb-4 text-lg font-semibold">
         NOVA Assistant
       </div>
 
       {/* Messages */}
       <div
         ref={chatRef}
-        className="bg-black rounded-xl p-4 h-64 overflow-y-auto text-gray-300 space-y-4"
+        className="bg-black/70 rounded-2xl p-4 h-72 overflow-y-auto text-gray-300 space-y-4 border border-cyan-900"
       >
 
         {chat.map((msg, index) => (
@@ -49,9 +42,31 @@ function ChatBox({
 
       </div>
 
-      {/* Input */}
-      <div className="flex mt-4 gap-3">
+      {/* Input Area */}
+      <div className="flex items-center mt-5 bg-black/70 border border-cyan-900 rounded-2xl px-3 py-2">
 
+        {/* Upload */}
+        <label className="text-cyan-400 hover:text-white transition cursor-pointer px-3">
+
+          <FaPaperclip size={18} />
+
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+
+              const file = e.target.files[0]
+
+              if (file) {
+                alert(`Selected: ${file.name}`)
+              }
+
+            }}
+          />
+
+        </label>
+
+        {/* Input */}
         <input
           type="text"
           value={message}
@@ -62,27 +77,21 @@ function ChatBox({
             }
           }}
           placeholder="Ask NOVA anything..."
-          className="flex-1 bg-black border border-cyan-900 rounded-xl px-4 py-3 outline-none text-white"
+          className="flex-1 bg-transparent outline-none text-white px-2"
         />
 
-        {/* Microphone Button */}
+        {/* Mic */}
         <button
           onClick={startListening}
-          className="px-5 py-3 bg-[#111827] text-cyan-400 rounded-xl hover:scale-105 hover:shadow-[0_0_20px_#00ffff] transition"
+          className="text-cyan-400 hover:text-white transition px-3"
         >
-          <FaMicrophone />
+          <FaMicrophone size={18} />
         </button>
 
-        {/* Send Button */}
+        {/* Send */}
         <button
-          onClick={() => {
-
-            playClick()
-
-            handleSend()
-
-          }}
-          className="px-6 py-3 bg-cyan-400 text-black rounded-xl font-semibold hover:scale-105 hover:shadow-[0_0_20px_#00ffff] transition"
+          onClick={handleSend}
+          className="ml-2 px-5 py-2 bg-cyan-400 text-black rounded-xl font-semibold hover:scale-105 transition"
         >
           Send
         </button>
