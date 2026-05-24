@@ -1,6 +1,8 @@
 import { FaMicrophone } from "react-icons/fa"
 import Message from "./Message"
 
+import clickSound from "../sounds/click.mp3"
+
 function ChatBox({
   chat,
   loading,
@@ -10,6 +12,16 @@ function ChatBox({
   startListening,
   chatRef
 }) {
+
+  const playClick = () => {
+
+    const audio = new Audio(clickSound)
+
+    audio.volume = 0.5
+
+    audio.play()
+
+  }
 
   return (
 
@@ -63,7 +75,13 @@ function ChatBox({
 
         {/* Send Button */}
         <button
-          onClick={handleSend}
+          onClick={() => {
+
+            playClick()
+
+            handleSend()
+
+          }}
           className="px-6 py-3 bg-cyan-400 text-black rounded-xl font-semibold hover:scale-105 hover:shadow-[0_0_20px_#00ffff] transition"
         >
           Send
