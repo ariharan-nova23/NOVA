@@ -4,6 +4,7 @@ import axios from "axios"
 import Navbar from "./components/Navbar"
 import Orb from "./components/Orb"
 import ChatBox from "./components/ChatBox"
+import ParticlesBackground from "./components/ParticlesBackground"
 
 function App() {
 
@@ -163,11 +164,12 @@ function App() {
 
   return (
 
-    <div className="bg-black min-h-screen text-white overflow-hidden relative">
+<div className="bg-black min-h-screen text-white overflow-hidden relative">
 
-      <Navbar />
+  <ParticlesBackground />
 
-      <div className="flex flex-col items-center justify-center h-[85vh] relative">
+  <Navbar />
+     <div className="flex flex-col items-center justify-center h-[85vh] relative z-10">
 
         <Orb />
 

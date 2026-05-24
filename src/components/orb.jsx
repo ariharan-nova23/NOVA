@@ -1,27 +1,47 @@
-import { motion } from "framer-motion"
+import { Canvas } from "@react-three/fiber"
+import {
+  Float,
+  Sphere,
+  MeshDistortMaterial
+} from "@react-three/drei"
 
 function Orb() {
 
   return (
 
-    <>
-    
-      {/* Background Glow */}
-      <div className="absolute w-[500px] h-[500px] bg-cyan-500 opacity-20 blur-3xl rounded-full"></div>
+    <div className="absolute inset-0 h-screen w-screen z-0">
 
-      {/* Floating Orb */}
-      <motion.div
-        animate={{
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-        }}
-        className="w-40 h-40 rounded-full border-4 border-cyan-400 shadow-[0_0_60px_#00ffff]"
-      ></motion.div>
+      <Canvas camera={{ position: [0, 0, 4] }}>
 
-    </>
+        <ambientLight intensity={3} />
+
+        <directionalLight
+          position={[3, 3, 5]}
+          intensity={3}
+        />
+
+        <Float
+          speed={4}
+          rotationIntensity={3}
+          floatIntensity={3}
+        >
+
+          <Sphere args={[1.5, 128, 128]} scale={3}>
+
+            <MeshDistortMaterial
+              color="#00ffff"
+              distort={0.5}
+              speed={3}
+              roughness={0}
+            />
+
+          </Sphere>
+
+        </Float>
+
+      </Canvas>
+
+    </div>
 
   )
 
