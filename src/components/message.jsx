@@ -3,13 +3,30 @@ import {
   FaRobot
 } from "react-icons/fa"
 
+import { motion } from "framer-motion"
+
 function Message({ msg }) {
 
   const isUser = msg.sender === "user"
 
   return (
 
-    <div
+    <motion.div
+
+      initial={{
+        opacity: 0,
+        y: 20
+      }}
+
+      animate={{
+        opacity: 1,
+        y: 0
+      }}
+
+      transition={{
+        duration: 0.3
+      }}
+
       className={`flex items-end gap-3 ${
         isUser
           ? "justify-end"
@@ -74,7 +91,7 @@ function Message({ msg }) {
 
       )}
 
-    </div>
+    </motion.div>
 
   )
 
