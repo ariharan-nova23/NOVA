@@ -12,8 +12,18 @@ function ChatBox({
   setMessage,
   handleSend,
   startListening,
-  chatRef
+  chatRef,
+  selectedFile,
+  setSelectedFile
 }) {
+
+  const handleFile = (file) => {
+
+    if (!file) return
+
+    setSelectedFile(file)
+
+  }
 
   return (
 
@@ -42,6 +52,21 @@ function ChatBox({
 
       </div>
 
+      {/* Attached File */}
+      {selectedFile && (
+
+        <div className="mt-3 text-sm text-cyan-400 flex items-center gap-2">
+
+          <FaPaperclip />
+
+          <span>
+            Attached: {selectedFile.name}
+          </span>
+
+        </div>
+
+      )}
+
       {/* Input Area */}
       <div className="flex items-center mt-5 bg-black/70 border border-cyan-900 rounded-2xl px-3 py-2">
 
@@ -53,15 +78,11 @@ function ChatBox({
           <input
             type="file"
             className="hidden"
-            onChange={(e) => {
-
-              const file = e.target.files[0]
-
-              if (file) {
-                alert(`Selected: ${file.name}`)
-              }
-
-            }}
+            onChange={(e) =>
+              handleFile(
+                e.target.files[0]
+              )
+            }
           />
 
         </label>
@@ -70,11 +91,17 @@ function ChatBox({
         <input
           type="text"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) =>
+            setMessage(e.target.value)
+          }
           onKeyDown={(e) => {
+
             if (e.key === "Enter") {
+
               handleSend()
+
             }
+
           }}
           placeholder="Ask NOVA anything..."
           className="flex-1 bg-transparent outline-none text-white px-2"

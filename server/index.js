@@ -2,6 +2,8 @@ import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import OpenAI from "openai"
+import axios from "axios"
+import multer from "multer"
 
 dotenv.config()
 
@@ -10,68 +12,189 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+const upload = multer({
+  storage: multer.memoryStorage()
+})
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: "https://openrouter.ai/api/v1"
 })
 
-app.post("/chat", async (req, res) => {
+app.post(
+  "/chat",
+  upload.single("image"),
+  async (req, res) => {
 
-  try {
+    try {
 
-    const { message, chatHistory } = req.body
+      const { message, chatHistory } = req.body
 
-    const messages = [
+      let webData = ""
 
-      {
-        role: "system",
-        content:
-          "You are NOVA, an intelligent AI assistant. Always remember previous conversation context accurately. If the user tells you their name or information, remember it and use it naturally later."
-      },
+      // LIVE NEWS MODE
+      if (
+        message?.toLowerCase().includes("latest") ||
+        message?.toLowerCase().includes("news") ||
+        message?.toLowerCase().includes("current")
+      ) {
 
-      ...chatHistory
-        .filter(msg => msg.text.trim() !== "")
-        .map(msg => ({
-          role:
-            msg.sender === "user"
-              ? "user"
-              : "assistant",
-          content: msg.text
-        })),
+        try {
 
-      {
-        role: "user",
-        content: message
+          const response = await axios.get(
+            "https://api.spaceflightnewsapi.net/v4/articles/"
+          )
+
+          const articles = response.data.results
+            .slice(0, 5)
+            .map(article =>
+              `• ${article.title}`
+            )
+            .join("\n")
+
+          webData =
+            `Latest News:\n${articles}`
+
+        } catch {
+
+          webData =
+            "Unable to fetch live news."
+
+        }
+
       }
 
-    ]
+      // BASE MESSAGES
+      const messages = [
 
-    const completion = await openai.chat.completions.create({
+        {
+          role: "system",
+          content:
+            "You are NOVA, a futuristic intelligent AI assistant."
+        }
 
-      model: "openai/gpt-3.5-turbo",
+      ]
 
-      messages
+      // CHAT HISTORY
+      if (chatHistory) {
 
-    })
+        const parsedHistory =
+          JSON.parse(chatHistory)
 
-    res.json({
-      reply: completion.choices[0].message.content
-    })
+        parsedHistory.forEach(msg => {
 
-  } catch (error) {
+          messages.push({
 
-    console.log(error)
+            role:
+              msg.sender === "user"
+                ? "user"
+                : "assistant",
 
-    res.status(500).json({
-      reply: "Something went wrong."
-    })
+            content: msg.text
+
+          })
+
+        })
+
+      }
+
+      // LIVE WEB DATA
+      if (webData) {
+
+        messages.push({
+
+          role: "system",
+          content: webData
+
+        })
+
+      }
+
+      // IMAGE ANALYSIS
+      if (req.file) {
+
+        const base64Image =
+          req.file.buffer.toString("base64")
+
+        const imageUrl =
+          `data:${req.file.mimetype};base64,${base64Image}`
+
+        messages.push({
+
+          role: "user",
+
+          content: [
+
+            {
+              type: "text",
+              text:
+                message ||
+                "Analyze this image."
+            },
+
+            {
+              type: "image_url",
+              image_url: {
+                url: imageUrl
+              }
+            }
+
+          ]
+
+        })
+
+      }
+
+      else {
+
+        messages.push({
+
+          role: "user",
+          content: message
+
+        })
+
+      }
+
+      // GPT-4o REQUEST
+      const completion =
+        await openai.chat.completions.create({
+
+        model: "openai/gpt-3.5-turbo",
+          messages
+
+        })
+
+      res.json({
+
+        reply:
+          completion.choices[0]
+            .message.content
+
+      })
+
+    } catch (error) {
+
+      console.log(error)
+
+      res.status(500).json({
+
+        reply:
+          "Something went wrong."
+
+      })
+
+    }
 
   }
-
-})
+)
 
 const PORT = 5000
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+
+  console.log(
+    `Server running on port ${PORT}`
+  )
+
 })
